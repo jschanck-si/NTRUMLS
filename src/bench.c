@@ -34,10 +34,6 @@
 #define TRIALS 10000
 #define VERIFY 1
 
-extern int g_loop;
-extern int g_max;
-extern int g_max2;
-
 int bench_param_set(PQ_PARAM_SET_ID id);
 
 int
@@ -61,9 +57,6 @@ main(int argc, char **argv)
 
   for(i = 0; i<numParams; i++)
   {
-    g_loop = 0;
-    g_max = 0;
-    g_max2 = 0;
     bench_param_set(plist[i]);
   }
 
@@ -139,10 +132,6 @@ bench_param_set(PQ_PARAM_SET_ID id)
   c1 = clock();
   printf("Time/signature: %fs\n", (float) (c1 - c0)/(TRIALS*CLOCKS_PER_SEC));
   printf("Good signatures %d/%d\n", valid, TRIALS);
-  printf("avg loop %f\n", ((float)TRIALS)/g_loop);
-  printf("max |a*f| %d/%d\n", g_max, (int) P->B_s);
-  printf("max |a*g| %d/%d\n", g_max2, (int) P->B_t);
-
 
   memset(msg, 0, 256);
   valid = 0;
