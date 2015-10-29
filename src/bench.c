@@ -45,10 +45,17 @@ main(int argc, char **argv)
 {
   uint16_t i;
   PQ_PARAM_SET_ID plist[] = {
-    DRAFT_401,
-    DRAFT_439,
-    DRAFT_593,
-    DRAFT_743
+    XXX_20140508_401,
+    XXX_20140508_439,
+    XXX_20140508_593,
+    XXX_20140508_743,
+
+    XXX_20151024_401,
+    XXX_20151024_443,
+    XXX_20151024_563,
+    //XXX_20151024_509,
+    XXX_20151024_743,
+    XXX_20151024_907,
     };
   size_t numParams = sizeof(plist)/sizeof(PQ_PARAM_SET_ID);
 
