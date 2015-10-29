@@ -250,7 +250,7 @@ int64_elements_2_octets(
 /* octets_2_elements
  *
  * Unpacks an octet string into an array of ((in_len * 8) / n_bits)
- * n-bit elements, 8 < n_bits < 16.  Any extra bits are discarded.
+ * n-bit elements, 8 < n_bits < 64.  Any extra bits are discarded.
  */
 
 int
@@ -278,12 +278,12 @@ octets_2_int64_elements(
 
     while (i < in_len)
     {
-        shift = 8 - shift;
-        if (shift < 1)
+        if (shift > 8)
         {
             /* the current octet will not fill the current element */
 
-            shift += n_bits;
+            shift = shift - 8;
+            temp |= ((uint64_t)in[i]) << shift;
         }
         else
         {
@@ -291,15 +291,15 @@ octets_2_int64_elements(
              * output the element
              */
 
+            shift = 8 - shift;
+
             temp |= ((uint64_t)in[i]) >> shift;
             *out++ = temp & mask;
-            temp = 0;
+
+            /* add the remaining bits of the current octet to start an element */ 
+            shift = n_bits - shift;
+            temp = ((uint64_t)in[i]) << shift;
         }
-
-        /* add the remaining bits of the current octet to start an element */
-
-        shift = n_bits - shift;
-        temp |= ((uint64_t)in[i]) << shift;
         ++i;
     }
 
@@ -403,30 +403,30 @@ octets_2_int16_elements(
     shift = n_bits;
     i = 0;
 
-    while (i < in_len) 
+    while (i < in_len)
     {
-        shift = 8 - shift;
-        if (shift < 0) 
+        if (shift > 8)
         {
             /* the current octet will not fill the current element */
 
-            shift += n_bits;
-        } 
-        else 
+            shift = shift - 8;
+            temp |= ((uint16_t)in[i]) << shift;
+        }
+        else
         {
             /* add bits from the current octet to fill the current element and
              * output the element
              */
 
+            shift = 8 - shift;
+
             temp |= ((uint16_t)in[i]) >> shift;
             *out++ = temp & mask;
-            temp = 0;
+
+            /* add the remaining bits of the current octet to start an element */ 
+            shift = n_bits - shift;
+            temp = ((uint16_t)in[i]) << shift;
         }
-
-        /* add the remaining bits of the current octet to start an element */
-
-        shift = n_bits - shift;
-        temp |= ((uint16_t)in[i]) << shift;
         ++i;
     }
 
