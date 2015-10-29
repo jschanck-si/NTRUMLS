@@ -365,24 +365,20 @@ pq_verify(
     return PQNTRU_ERROR;
   }
 
-  result = unpack_signature(P, sig, packed_sig_len, packed_sig);
+  challenge(sp, tp,
+            public_key_blob_len, public_key_blob,
+            msg_len, msg);
+
+  result = unpack_signature(P, sig, sp, packed_sig_len, packed_sig);
   if(PQNTRU_ERROR == result)
   {
     free(scratch);
     return PQNTRU_ERROR;
   }
 
-
-  challenge(sp, tp,
-            public_key_blob_len, public_key_blob,
-            msg_len, msg);
-
   for(i=0; i<N; i++)
   {
-    sig[i] = sig[i] - (P->q / (2*P->p));
-    sig[i] = sig[i] * P->p;
-    sig[i] = sig[i] + sp[i];
-    error |= (cmod(sig[i], p) - sp[i]);
+    error |= (cmod(sig[i] - sp[i], p));
     error |= (sig[i] > P->norm_bound_s) || (-sig[i] > P->norm_bound_s);
   }
 

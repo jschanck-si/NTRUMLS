@@ -46,6 +46,7 @@ testPack(PQ_PARAM_SET_ID id)
   {
     return -1;
   }
+  fprintf(stderr, "PACK: testing parameter set %s\n", P->name);
 
   unsigned char *scratch;
   uint16_t *iF;
@@ -57,10 +58,12 @@ testPack(PQ_PARAM_SET_ID id)
   int64_t *ih;
   int64_t *oh;
   int64_t *isig;
+  int64_t *psig;
   int64_t *osig;
   unsigned char *priv_blob;
   unsigned char *pub_blob;
   unsigned char *sig_blob;
+  int8_t *sp;
 
   size_t prod = 2*(P->d1 + P->d2 + P->d3)*sizeof(uint16_t);
   size_t full = P->N*sizeof(int64_t);
@@ -69,7 +72,7 @@ testPack(PQ_PARAM_SET_ID id)
   size_t sig_len = SIGNATURE_BYTES(P);
   size_t offset;
 
-  scratch = malloc(4*prod + 6*full + priv_blob_len + pub_blob_len + sig_len);
+  scratch = malloc(4*prod + 7*full + priv_blob_len + pub_blob_len + sig_len + P->N);
 
   offset = 0;
   iF = (uint16_t*)(scratch + offset); offset += prod;
@@ -79,16 +82,18 @@ testPack(PQ_PARAM_SET_ID id)
   iginv = (int64_t*)(scratch + offset); offset += full;
   oginv = (int64_t*)(scratch + offset); offset += full;
   isig = (int64_t*)(scratch + offset); offset += full;
+  psig = (int64_t*)(scratch + offset); offset += full;
   osig = (int64_t*)(scratch + offset); offset += full;
   ih = (int64_t*)(scratch + offset); offset += full;
   oh = (int64_t*)(scratch + offset); offset += full;
   priv_blob = (unsigned char*)(scratch + offset); offset += priv_blob_len;
   pub_blob = (unsigned char*)(scratch + offset); offset += pub_blob_len;
   sig_blob = (unsigned char*)(scratch + offset); offset += sig_len;
+  sp = (int8_t *)(scratch + offset); offset += P->N;
 
   for(T=0; T<TIMES; T++)
   {
-    fastrandombytes(scratch, 4*prod + 6*full + priv_blob_len + pub_blob_len + sig_len);
+    fastrandombytes(scratch, 4*prod + 7*full + priv_blob_len + pub_blob_len + sig_len);
     for(i = 0; i < prod; i++)
     {
       iF[i] = iF[i] % P->N;
@@ -99,10 +104,11 @@ testPack(PQ_PARAM_SET_ID id)
     {
       iginv[i] = cmod(iginv[i], P->p);
       ih[i] = cmod(ih[i], P->q);
-      isig[i] = isig[i] % P->q;
-      isig[i] = (isig[i] + P->q) % P->q;
-      isig[i] -= isig[i] % P->p;
-      isig[i] /= P->p;
+      isig[i] = cmod(isig[i],P->q);
+      sp[i] = cmod(isig[i],P->p);
+
+      /* Prepare isig for packing as psig */
+      psig[i] = (isig[i] - sp[i])/P->p + (P->q / (2*P->p));
     }
 
     rc = pack_private_key(P, iF, ig, iginv, priv_blob_len, priv_blob);
@@ -117,10 +123,10 @@ testPack(PQ_PARAM_SET_ID id)
     rc = unpack_public_key(P, oh, pub_blob_len, pub_blob);
     if(PQNTRU_ERROR == rc) { printf("Public key unpack error\n"); return -1; }
 
-    rc = pack_signature(P, isig, sig_len, sig_blob);
+    rc = pack_signature(P, psig, sig_len, sig_blob);
     if(PQNTRU_ERROR == rc) { printf("Signature pack error\n"); return -1; }
 
-    rc = unpack_signature(P, osig, sig_len, sig_blob);
+    rc = unpack_signature(P, osig, sp, sig_len, sig_blob);
     if(PQNTRU_ERROR == rc) { printf("Signature unpack error\n"); return -1; }
 
     for(i=0; i<2*(P->d1 + P->d2 + P->d3); i++)
@@ -134,23 +140,28 @@ testPack(PQ_PARAM_SET_ID id)
 
     for(i=0; i<P->N; i++)
     {
-      oh[i] = cmod(oh[i], P->q);
-      oginv[i] = cmod(oginv[i], P->p);
-      if(ih[i] != oh[i] || iginv[i] != oginv[i])
+      if(cmod(oh[i] - ih[i], P->q) != 0)
       {
-        printf("%d %ld %ld %ld %ld\n", i, ih[i], oh[i], iginv[i], oginv[i]);
-        printf("public key or iginv not equal\n");
+        printf("in/out public key not equal @ indx %d :: ih %ld oh %ld \n", i, ih[i], oh[i]);
+        printf("\n");
         return -1;
       }
 
-      if(isig[i] != osig[i])
+      if(cmod(oginv[i] - iginv[i], P->p) != 0)
       {
-        printf("%d %ld %ld\n", i, isig[i], osig[i]);
-        printf("signatures not equal\n");
+        printf("in/out ginv not equal @ indx %d :: iginv %ld oginv %ld\n", i, iginv[i], oginv[i]);
+        printf("\n");
+        return -1;
+      }
+
+      if(cmod(isig[i] - osig[i], P->q) != 0)
+      {
+        printf("signatures not equal @ indx %d :: isig %ld osig %ld sp %d\n", i, isig[i], osig[i], sp[i]);
         return -1;
       }
     }
   }
+  return 0;
 }
 
 static int
@@ -175,6 +186,7 @@ testKeyGen(PQ_PARAM_SET_ID id)
   {
     return -1;
   }
+  fprintf(stderr, "KEYGEN: testing parameter set %s\n", P->name);
 
   size_t prod = 2*(P->d1 + P->d2 + P->d3)*sizeof(uint16_t);
   size_t full = POLYNOMIAL_BYTES(P);
@@ -264,7 +276,7 @@ testSet(PQ_PARAM_SET_ID id)
   {
     return -1;
   }
-  fprintf(stderr, "Testing parameter set %s", P->name);
+  fprintf(stderr, "SUITE: Testing parameter set %s\n", P->name);
   fflush(stderr);
 
   pq_gen_key(P, &privkey_blob_len, NULL, &pubkey_blob_len, NULL);
@@ -318,8 +330,6 @@ testSet(PQ_PARAM_SET_ID id)
     }
   }
 
-  fprintf(stderr, "\t good\n");
-
 exit:
   free(sigs);
 exit_kg:
@@ -339,9 +349,14 @@ main(int argc, char **argv)
 
   for(i = 0; i<numParams; i++)
   {
-    testPack(plist[i]);
-    testKeyGen(plist[i]);
-    testSet(plist[i]);
+    result = 0;
+    result |= testPack(plist[i]);
+    result |= testKeyGen(plist[i]);
+    result |= testSet(plist[i]);
+
+    if(result == 0) fprintf(stderr, "\t good\n");
+    else fprintf(stderr, "\t fail\n");
+
   }
 
   rng_cleanup();

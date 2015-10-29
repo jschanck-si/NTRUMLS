@@ -85,7 +85,7 @@
 
 
 #define SIGNATURE_BYTES(P)  \
-        ((((P)->N * ((P)->q_bits-1) + 7)/8))
+        ((((P)->N * ((P)->q_bits-1)) + 7)/8)
 
 
 int
@@ -137,6 +137,7 @@ int
 unpack_signature(
     PQ_PARAM_SET        *P,
     int64_t             *sig,
+    const int8_t        *sp,
     const size_t        blob_len,
     const unsigned char *blob);
 
