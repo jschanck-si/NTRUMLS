@@ -629,10 +629,6 @@ pq_verify(
 
   for(i=0; i<N; i++)
   {
-    sig[i] = sig[i] - (P->q / (2*P->p));
-    sig[i] = sig[i] * P->p;
-//    sig[i] = sig[i] + sp[i];
-//    error |= (cmod(sig[i], p) - sp[i]);
     error |= cmod(sig[i], p);
     error |= (sig[i] > P->norm_bound_s) || (-sig[i] > P->norm_bound_s);
   }

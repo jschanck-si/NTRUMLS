@@ -31,12 +31,8 @@
 #include "pqntrusign.h"
 #include "pack.h"
 
-#define TRIALS 1000//10000
+#define TRIALS 10//10000
 #define VERIFY 1
-
-int g_loop;
-int g_max;
-int g_max2;
 
 int bench_param_set(PQ_PARAM_SET_ID id);
 
@@ -45,10 +41,17 @@ main(int argc, char **argv)
 {
   uint16_t i;
   PQ_PARAM_SET_ID plist[] = {
-    DRAFT_401,
-    DRAFT_439,
-    DRAFT_593,
-    DRAFT_743
+    XXX_20140508_401,
+    XXX_20140508_439,
+    XXX_20140508_593,
+    XXX_20140508_743,
+
+    XXX_20151024_401,
+    XXX_20151024_443,
+    XXX_20151024_563,
+    //XXX_20151024_509,
+    XXX_20151024_743,
+    XXX_20151024_907,
     };
   size_t numParams = sizeof(plist)/sizeof(PQ_PARAM_SET_ID);
 
@@ -57,9 +60,6 @@ main(int argc, char **argv)
 
   for(i = 0; i<numParams; i++)
   {
-    g_loop = 0;
-    g_max = 0;
-    g_max2 = 0;
     bench_param_set(plist[i]);
   }
 
@@ -154,10 +154,6 @@ bench_param_set(PQ_PARAM_SET_ID id)
   c1 = clock();
   printf("Time/signature: %fs\n", (float) (c1 - c0)/(TRIALS*CLOCKS_PER_SEC));
   printf("Good signatures %d/%d\n", valid, TRIALS);
-  printf("avg loop %f\n", ((float)TRIALS)/g_loop);
-  printf("max |a*f| %d/%d\n", g_max, (int) P->B_s);
-  printf("max |a*g| %d/%d\n", g_max2, (int) P->B_t);
-
 
   memset(msg, 0, 256);
   valid = 0;

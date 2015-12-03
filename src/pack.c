@@ -230,6 +230,7 @@ unpack_signature(
     const size_t        blob_len,
     const unsigned char *blob)
 {
+  uint16_t i;
 
   if(blob_len != SIGNATURE_BYTES(P))
   {
@@ -238,6 +239,14 @@ unpack_signature(
 
   octets_2_int64_elements(SIGNATURE_BYTES(P),
                           blob, P->q_bits-1, (uint64_t *)sig);
+
+  for(i=0; i<P->N; i++)
+  {
+    sig[i] = sig[i] - (P->q / (2*P->p));
+    sig[i] = sig[i] * P->p;
+    //sig[i] = sig[i] + sp[i];
+  }
+
 
   return PQNTRU_OK;
 }

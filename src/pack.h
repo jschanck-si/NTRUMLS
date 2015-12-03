@@ -85,7 +85,7 @@
 
 
 #define SIGNATURE_BYTES(P)  \
-        ((((P)->N * ((P)->q_bits-1) + 7)/8))
+        ((((P)->N * ((P)->q_bits-1)) + 7)/8)
 
 
 int
