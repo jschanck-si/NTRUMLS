@@ -52,9 +52,9 @@ void randombytes(unsigned char *x, unsigned long long xlen)
 		printf("Error during CryptGenRandom.\n");
 		exit(1);
 	}
-	printf("window random string: ");
-	for (i = 0; i < xlen; i++)
-		printf("%2x ", x[i]);
-	printf("\n");
+//	printf("window random string: ");
+//	for (i = 0; i < xlen; i++)
+//		printf("%2x ", x[i]);
+//	printf("\n");
 	Sleep(1);
 }

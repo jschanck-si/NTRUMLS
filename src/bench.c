@@ -31,7 +31,7 @@
 #include "pqntrusign.h"
 #include "pack.h"
 
-#define TRIALS 10000
+#define TRIALS 100
 #define VERIFY 1
 
 int bench_param_set(PQ_PARAM_SET_ID id);
