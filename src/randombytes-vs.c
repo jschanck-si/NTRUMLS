@@ -1,7 +1,4 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdint.h>
+#include <stdio.h>
 #include <windows.h>
 #include <Wincrypt.h>
 #include "randombytes.h"
@@ -10,15 +7,14 @@
 
 void randombytes(unsigned char *x, unsigned long long xlen)
 {
-	int i;
-	srand(time(NULL) - 3);
-	HCRYPTPROV hCryptProv = NULL;
 
-	if (CryptAcquireContext(&hCryptProv,               // handle to the CSP
-		NULL,                  // container name
-		NULL,                      // use the default provider
-		PROV_RSA_FULL,             // provider type
-		0))                        // flag values
+	HCRYPTPROV hCryptProv;
+
+	if (CryptAcquireContext(&hCryptProv,	// handle to the CSP
+		NULL,								// container name
+		NULL,								// use the default provider
+		PROV_RSA_FULL,						// provider type
+		0))									// flag values
 		;
 	else
 	{
@@ -43,18 +39,12 @@ void randombytes(unsigned char *x, unsigned long long xlen)
 				"acquired.\n");
 			exit(1);
 		}
-
 	} // End of else.
-	if (CryptGenRandom(hCryptProv, xlen, x))
+	if (CryptGenRandom(hCryptProv, (DWORD) xlen, x))
 		;
 	else
 	{
 		printf("Error during CryptGenRandom.\n");
 		exit(1);
 	}
-//	printf("window random string: ");
-//	for (i = 0; i < xlen; i++)
-//		printf("%2x ", x[i]);
-//	printf("\n");
-	Sleep(1);
 }
