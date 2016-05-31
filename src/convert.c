@@ -90,7 +90,7 @@ int64_trits_2_bits(
         return PQNTRU_ERROR;
     }
 
-    if(out_len < ((N+4)/5))
+    if(out_len < (size_t)((N+4)/5))
     {
         return PQNTRU_ERROR;
     }
@@ -108,7 +108,7 @@ int64_trits_2_bits(
         tmp += 3  * ((poly[i+3] + 3) % 3);
         tmp +=      ((poly[i+4] + 3) % 3);
 
-        out[j] = tmp;
+        out[j] = (unsigned char) tmp;
         ++j;
     }
 

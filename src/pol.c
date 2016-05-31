@@ -178,12 +178,12 @@ pol_inv_modp(
   /* f = a (mod p)*/
   degf = 0;
   for(i=0; i<N; i++) {
-    f[i] = a[i] % p;
+    f[i] = (uint8_t) (a[i] % p);
     if(f[i]) degf = i;
   }
 
   /* g = x^N - 1 */
-  g[0] = p-1;
+  g[0] = (uint8_t)(p-1);
   g[N] = 1;
   degg = N;
 
@@ -238,7 +238,7 @@ pol_inv_modp(
 
     for(i = 0; i <= degg; i++)
     {
-      f[i] = (f[i] - u*g[i]) % p;
+      f[i] = (uint8_t)((f[i] - u*g[i]) % p);
     }
 
     if(degg == degf)
@@ -251,7 +251,7 @@ pol_inv_modp(
 
     for(i = 0; i <= degc; i++)
     {
-      b[i] = (b[i] - u*c[i]) % p;
+      b[i] = (uint8_t)((b[i] - u*c[i]) % p);
     }
 
     if(degc >= degb)
@@ -650,21 +650,23 @@ pol_mul_coefficients(
  * (a_i -> [-(p-1)/2, (p-1)/2]
  */
 int64_t
-cmod(int64_t a, int64_t p)
+cmod(const int64_t a, const int64_t p)
 {
-  if (a >= 0)
+  int64_t b;
+  b = a;
+  if (b >= 0)
   {
-    a %= p;
+    b %= p;
   }
   else
   {
-    a = p + (a % p);
+    b = p + (b % p);
   }
-  if (a > ((p-1)/2))
+  if (b > ((p-1)/2))
   {
-    a -= p;
+    b -= p;
   }
 
-  return a;
+  return b;
 }
 

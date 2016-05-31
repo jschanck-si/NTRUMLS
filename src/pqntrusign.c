@@ -492,7 +492,7 @@ pq_gen_key(
    */
   do
   {
-    pol_gen_product(f, d1, d2, d3, N);
+    pol_gen_product(f, (uint8_t) d1, (uint8_t) d2, (uint8_t) d3, N);
 
     /* f = p * (1 + product form poly) */
     memset(a1, 0, POLYNOMIAL_BYTES(P));
@@ -526,7 +526,7 @@ pq_gen_key(
     /* Generate product form g,
      * then expand it to find inverse mod p
      */
-    pol_gen_product(g, d1, d2, d3, N);
+    pol_gen_product(g, (uint8_t) d1, (uint8_t) d2, (uint8_t) d3, N);
 
     memset(a1, 0, POLYNOMIAL_BYTES(P));
     a1[0] = 1;

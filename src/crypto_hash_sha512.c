@@ -26,14 +26,14 @@ static uint64 load_bigendian(const unsigned char *x)
 
 static void store_bigendian(unsigned char *x,uint64 u)
 {
-  x[7] = u; u >>= 8;
-  x[6] = u; u >>= 8;
-  x[5] = u; u >>= 8;
-  x[4] = u; u >>= 8;
-  x[3] = u; u >>= 8;
-  x[2] = u; u >>= 8;
-  x[1] = u; u >>= 8;
-  x[0] = u;
+  x[7] = (unsigned char) u; u >>= 8;
+  x[6] = (unsigned char) u; u >>= 8;
+  x[5] = (unsigned char) u; u >>= 8;
+  x[4] = (unsigned char) u; u >>= 8;
+  x[3] = (unsigned char) u; u >>= 8;
+  x[2] = (unsigned char) u; u >>= 8;
+  x[1] = (unsigned char) u; u >>= 8;
+  x[0] = (unsigned char) u;
 }
 
 #define SHR(x,c) ((x) >> (c))
@@ -280,28 +280,28 @@ int crypto_hash_sha512(unsigned char *out,const unsigned char *in,unsigned long 
   padded[inlen] = 0x80;
 
   if (inlen < 112) {
-    for (i = inlen + 1;i < 119;++i) padded[i] = 0;
-    padded[119] = bytes >> 61;
-    padded[120] = bytes >> 53;
-    padded[121] = bytes >> 45;
-    padded[122] = bytes >> 37;
-    padded[123] = bytes >> 29;
-    padded[124] = bytes >> 21;
-    padded[125] = bytes >> 13;
-    padded[126] = bytes >> 5;
-    padded[127] = bytes << 3;
+    for (i = (int) inlen + 1;i < 119;++i) padded[i] = 0;
+    padded[119] = (unsigned char) (bytes >> 61);
+    padded[120] = (unsigned char) (bytes >> 53);
+    padded[121] = (unsigned char) (bytes >> 45);
+    padded[122] = (unsigned char) (bytes >> 37);
+    padded[123] = (unsigned char) (bytes >> 29);
+    padded[124] = (unsigned char) (bytes >> 21);
+    padded[125] = (unsigned char) (bytes >> 13);
+    padded[126] = (unsigned char) (bytes >> 5);
+    padded[127] = (unsigned char) (bytes << 3);
     blocks(h,padded,128);
   } else {
-    for (i = inlen + 1;i < 247;++i) padded[i] = 0;
-    padded[247] = bytes >> 61;
-    padded[248] = bytes >> 53;
-    padded[249] = bytes >> 45;
-    padded[250] = bytes >> 37;
-    padded[251] = bytes >> 29;
-    padded[252] = bytes >> 21;
-    padded[253] = bytes >> 13;
-    padded[254] = bytes >> 5;
-    padded[255] = bytes << 3;
+    for (i = (int) inlen + 1;i < 247;++i) padded[i] = 0;
+    padded[247] = (unsigned char) (bytes >> 61);
+    padded[248] = (unsigned char) (bytes >> 53);
+    padded[249] = (unsigned char) (bytes >> 45);
+    padded[250] = (unsigned char) (bytes >> 37);
+    padded[251] = (unsigned char) (bytes >> 29);
+    padded[252] = (unsigned char) (bytes >> 21);
+    padded[253] = (unsigned char) (bytes >> 13);
+    padded[254] = (unsigned char) (bytes >> 5);
+    padded[255] = (unsigned char) (bytes << 3);
     blocks(h,padded,256);
   }
 
