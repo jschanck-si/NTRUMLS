@@ -115,7 +115,7 @@ bench_param_set(PQ_PARAM_SET_ID id)
   printf("Time/key: %fs\n", (float) (c1 - c0)/(TRIALS*CLOCKS_PER_SEC));
 
   pq_sign(&packed_sig_len, NULL, privkey_blob_len, privkey_blob, pubkey_blob_len, pubkey_blob, 0, NULL);
-  printf("packed_sig_len %d\n", packed_sig_len);
+  printf("packed_sig_len %d\n", (int) packed_sig_len);
 
   sigs = malloc(TRIALS * packed_sig_len);
 
