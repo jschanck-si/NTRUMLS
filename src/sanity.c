@@ -104,7 +104,7 @@ testPack(PQ_PARAM_SET_ID id)
     {
       iginv[i] = cmod(iginv[i], P->p);
       ih[i] = cmod(ih[i], P->q);
-      isig[i] = cmod(isig[i],P->q);
+      isig[i] = cmod(isig[i],P->q - (P->p/2));
       sp[i] = cmod(isig[i],P->p);
 
       /* Prepare isig for packing as psig */
